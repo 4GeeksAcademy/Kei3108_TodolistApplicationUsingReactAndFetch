@@ -7,23 +7,19 @@ const Home = () => {
 
   // Add
   function handleNewHobby(e) {
-    if (e.key === "Enter" && inputValue !== "") {
-      setHobbies((prevHobbies) => [...prevHobbies, inputValue]);
-      let aux = hobbies.concat({ label: e.target.value, done: false });
-      updateHobbyList(aux);
+    if (e.key === "Enter" && inputValue.trim() !== "") {
+      const newHobby = { label: inputValue.trim(), done: false };
+      setHobbies((prevHobbies) => [...prevHobbies, newHobby]);
+      updateHobbyList([...hobbies, newHobby]);
       setInputValue("");
     }
   }
 
   // Delete 
-  function HandleDeleteHobby(id) {
-    setHobbies((prevHobbies) => {
-      const updatedHobbies = [...prevHobbies];
-      updatedHobbies.splice(id, 1);
-      return updatedHobbies;
-    });
-    let aux = hobbies.filter((item, index) => index !== id); 
-    updateHobbyList(aux);
+  function handleDeleteHobby(index) {
+    const updatedHobbies = hobbies.filter((_, i) => i !== index);
+    setHobbies(updatedHobbies);
+    updateHobbyList(updatedHobbies);
   }
 
   const handleMouseEnter = (index) => {
@@ -36,7 +32,7 @@ const Home = () => {
 
   function clearList() {
     setHobbies([]); 
-    setHobbyList([]);
+    updateHobbyList([]);
   }
 
   // Fetch  GET API
@@ -54,30 +50,30 @@ const Home = () => {
   }, []);
 
   // Update the API 
-function updateHobbyList(hobbiesArray) {
-  fetch(
-    "https://fake-todo-list-52f9a4ed80ce.herokuapp.com/todos/user/Kei3108",
-    {
-      method: "PUT",
-      body: JSON.stringify(hobbiesArray),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  )
-    .then((resp) => {
-      console.log(resp.ok);
-      console.log(resp.status); 
-      console.log(resp.text()); 
-      return resp.json(); 
-    })
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
+  function updateHobbyList(hobbiesArray) {
+    fetch(
+      "https://fake-todo-list-52f9a4ed80ce.herokuapp.com/todos/user/Kei3108",
+      {
+        method: "PUT",
+        body: JSON.stringify(hobbiesArray),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((resp) => {
+        console.log(resp.ok);
+        console.log(resp.status);
+        console.log(resp.text());
+        return resp.json();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   return (
     <div className="container">
@@ -104,11 +100,11 @@ function updateHobbyList(hobbiesArray) {
               onMouseEnter={() => handleMouseEnter(index)}
               onMouseLeave={handleMouseLeave}
             >
-              {hobby}
+            <span>{hobby.label}</span>
               {activeIndex === index && (
                 <i
                   className="fas fa-trash-alt"
-                  onClick={() => HandleDeleteHobby(index)}
+                  onClick={() => handleDeleteHobby(index)}
                 ></i>
               )}
             </li>
@@ -116,16 +112,11 @@ function updateHobbyList(hobbiesArray) {
         )}
       </ul>
       <div>{hobbies.length} Hobbies</div>
-        <button
-          className="btn btn-info mt-2"
-          onClick={() => {
-            clearList();
-          }}
-        >
-          Delete All Hobbies
-        </button>
+      <button className="btn btn-info mt-2" onClick={clearList}>
+        Delete All Hobbies
+      </button>
     </div>
   );
-};
+}; 
 
 export default Home;
